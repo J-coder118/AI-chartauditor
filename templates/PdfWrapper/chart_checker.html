@@ -1,0 +1,560 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/checkout.css' %}"/>
+{% endblock %}
+{% block content %}
+
+    <div class="contHead">
+        <h3 class="h3">Step 1</h3>
+        <h1>Upload Patient Chart</h1>
+    </div>
+
+    {% for message in messages %}
+        <div class="alert alert-danger text-center w-50 mx-auto">
+            <a class="close" href="#" data-dismiss="alert">×</a>
+            {{ message }}
+        </div>
+    {% endfor %}
+
+    <!-- import chart form -->
+    <form id="chartForm" method="post" action="" enctype="multipart/form-data" class="importChartForm">
+        {% csrf_token %}
+        <div id="errorDiv"></div>
+        <div class="fileInputRow">
+            <div class="file-drop-area">
+            <span class="fake-btn"
+            ><img src="{% static 'images/fileInputImg.png' %}" alt=""
+            /></span>
+                <span class="file-msg">Import PDF or ZIP</span>
+                {{ form.chart }}
+            </div>
+        </div>
+        <div class="checkBoxRow">
+            <div class="row complainceMain">
+                <div class="col-5 compLeft">
+                    <h4>Audit chart for compliance with:</h4>
+                </div>
+                <div class="col7 compRight">
+
+                    <label class="radioLabelOne" for="">
+                        {{ form.is_state_compliance }}
+                        <span>State</span>
+                    </label>
+
+                    <label class="radioLabelOne" for="">
+                        {{ form.is_insurance_compliance }}
+                        <span>Insurance</span>
+                    </label>
+
+                    <label class="radioLabelOne" for="">
+                        {{ form.is_CARF_compliance }}
+                        <span>CARF</span>
+                    </label>
+
+                    <label class="radioLabelOne" for="">
+                        {{ form.is_commission_compliance }}
+                        <span>The Joint Commission</span>
+                    </label>
+                </div>
+                <div class="col-sm-6 mt-3">
+                    <div id="appendOptions">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="nextBtn" id="submitButton">
+            Continue to Step 2
+            <i class="fas fa-arrow-right nextRightArrow"></i>
+        </button>
+        <p><strong>Please note:</strong> ChartAuditor.com takes HIPAA Compliance seriously. We will inform identifying
+            information on the next step in order to strip PII before processing.</p>
+
+        <!--Deidentifying…  Modal -->
+        <div
+                class="modal fade checkModal"
+                id="Deidentifying"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalCenterTitle"
+                aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-body urgentModBody">
+                        <h3 id='costConfirmation' class="h3">importing chart</h3>
+                        <h2 id="deidentifyingText" class="h2 deindtHeadTwo">Deidentifying…</h2>
+                        <div class="urgentForm">
+                            <!-- progress bar  -->
+                            <div id="progressBarContainer">
+                                <span id="estimatedTime" class="durationText">1- 3 min  </span>
+                                <div id="bar">
+                                </div>
+                                <div id="text"></div>
+                            </div>
+                            <!-- progress bar // -->
+                        </div>
+                        <p id="displayText">
+                            We take privacy seriously. We are scanning the chart for any
+                            PII and removing it before proceeding to the next step. All
+                            uploaded data is removed daily.
+                        </p>
+                        <div id="modalButtons">
+                            <div class="identBtnRow">
+                                <a id="cancelLink" href="{% url 'user_cancel_chart' 0 %}"
+                                   class="nextBtn identfooterBtn">
+                                    Cancel
+                                </a>
+                                <button
+                                        type="button"
+                                        class="nextBtn identfooterBtn trialCls"
+                                        target=""
+                                >
+                                    Accept & Continue
+                                    <i class="fas fa-arrow-right nextRightArrow"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <form>
+        <input type="text" class="csrfToken" value="{{ csrf_token }}" hidden>
+        <input type="text" id="chartIdInput" value="{{ open_modal }}" hidden>
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="payModal" tabindex="-1" aria-labelledby="payModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form id="payment-form" class="p-4">
+                    <div class="modalFirstSec">
+                        <div class="mfsRowOne">
+                            <h2 id="payModalCost">107.42</h2>
+                            <p id="payModalDate">Due Dec 31 , 2024</p>
+                        </div>
+                        <div class="mfsRowTwo">
+                            <div class="mfsrTwoBox">
+                                <h4>To</h4>
+                                <h4>Chart Checker</h4>
+                            </div>
+                            <div class="mfsrTwoBox">
+                                <h4>From</h4>
+                                <h4 id="from"></h4>
+                            </div>
+                            <div class="mfsrTwoBox">
+                                <h4>Memo</h4>
+                                <h4 class="mfsrLastH4">Cost is $5 per 28,000 characters.</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="payment-element">
+                        <!--Stripe.js injects the Payment Element-->
+                    </div>
+                    <button id="submit">
+                        <div class="spinner hidden" id="spinner"></div>
+                        <span id="button-text">Pay now</span>
+                    </button>
+                    <div id="payment-message" class="hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{ user_id|json_script:"user_id" }}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="checkout.js" defer></script>
+
+        
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"].similarInputGroup');
+            checkboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        if (this.id === 'stateList') {
+                            var div = document.getElementById('appendOptions');
+                            div.innerHTML = `
+                                <div class="switchOne">
+                                <span class="switchText">
+                                  Please Select State
+                                </span>
+                                    {{ form.state_compliance }}
+                                </div>`
+                        } else if (this.id === 'isInsurance') {
+                            var div = document.getElementById('appendOptions');
+                            div.innerHTML = `
+                                <div class="switchOne">
+                                <span class="switchText">
+                                  Please Select State
+                                </span>
+                                    {{ form.insurance_compliance }}
+                                </div>`
+                        } else {
+                            var div = document.getElementById('appendOptions');
+                            div.innerHTML = ''
+                        }
+                        checkboxes.forEach(function (otherCheckbox) {
+                            if (otherCheckbox !== checkbox) {
+                                otherCheckbox.checked = false;
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+    </script>
+
+    <script>
+        var $fileInput = $(".file-input");
+        var $droparea = $(".file-drop-area");
+
+        // highlight drag area
+        $fileInput.on("dragenter focus click", function () {
+            $droparea.addClass("is-active");
+        });
+
+        // back to normal state
+        $fileInput.on("dragleave drop", function () {
+            $droparea.removeClass("is-active");
+        });
+
+        // change inner text
+        $fileInput.on("change", function () {
+            var filesCount = $(this)[0].files.length;
+            var $textContainer = $(this).prev();
+
+            if (filesCount === 1) {
+                // if single file is selected, show file name
+                var fileName = $(this).val().split("\\").pop();
+                $textContainer.text(fileName);
+            } else {
+                // otherwise show number of files
+                $textContainer.text(filesCount + " files selected");
+            }
+        });
+
+        // progress bar js
+        function increaseWidth(percent) {
+            document.getElementById("bar").style.width = percent + "%";
+            document.getElementById("text").innerHTML = percent + "%";
+        }
+    </script>
+
+    <script>
+        function getFormattedDate() {
+            // Get today's date
+            var today = new Date();
+
+            // Create an array of month names
+            var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Get the month, day, and year
+            var month = months[today.getMonth()];
+            var day = today.getDate();
+            var year = today.getFullYear();
+
+            // Format the date as "Month Day, Year"
+            var formattedDate = month + " " + day + ", " + year;
+
+            return formattedDate;
+        }
+    </script>
+
+    <script>
+        const errorDiv = document.getElementById('errorDiv');
+        errorDiv.style.display = 'none';
+
+        document.getElementById("submitButton").addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const modalButtons = document.getElementById('modalButtons')
+            modalButtons.style.display = "none";
+            const fileInput = document.getElementById('fileInput');
+            const chartForm = document.getElementById('chartForm');
+            const formData = new FormData(chartForm);
+            const userId = JSON.parse(document.getElementById('user_id').textContent)
+            const ws = new WebSocket(
+                'wss://'
+                + window.location.host
+                + '/ws/progress/'
+                + userId
+                + '/'
+            )
+            ws.onopen = function () {
+            }
+            ws.onmessage = function (event) {
+                const receivedPercentage = JSON.parse(event.data);
+                if (receivedPercentage.includes('-')) {
+                    const [start, end] = receivedPercentage.split('-').map(Number);
+                    for (let i = start; i <= end; i++) {
+                        increaseWidth(i);
+                    }
+                } else {
+                    const cancelLink = document.getElementById('cancelLink');
+                    const finalUrl = cancelLink.href.replace(/(.*\/)0([^0]*)$/, `$1${parseInt(receivedPercentage)}$2`);
+                    cancelLink.href = finalUrl;
+                }
+            }
+            $.ajax({
+                type: 'POST',
+                url: '{% url "chart_audit" %}',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    // Check if any file is selected
+                    var fileInput = document.getElementById('fileInput');
+                    if (fileInput.files.length > 0) {
+                        // Check file size
+                        var fileSize = fileInput.files[0].size; // Size in bytes
+                        var maxSize = 300 * 1024 * 1024; // 100 MB in bytes
+                        if (fileSize > maxSize) {
+                            return; // Prevent the AJAX request
+                        }
+                        // Check if any checkbox with class 'similarInputGroup' is checked
+                        var similarCheckboxes = document.querySelectorAll('.similarInputGroup');
+                        var similarCheckboxChecked = false;
+                        for (var i = 0; i < similarCheckboxes.length; i++) {
+                            if (similarCheckboxes[i].checked) {
+                                similarCheckboxChecked = true;
+                                break;
+                            }
+                        }
+
+                        // Check if stateList checkbox is checked
+                        var stateListCheckbox = document.getElementById('stateList');
+                        var stateOption = document.getElementById('stateOption');
+                        if (stateListCheckbox.checked && stateOption.value === '') {
+                            return // Prevent the AJAX request
+                        }
+                        var insuranceListCheckbox = document.getElementById('isInsurance');
+                        var insuranceOption = document.getElementById('insuranceOptions');
+                        if (insuranceListCheckbox.checked && insuranceOption.value === '') {
+                            return // Prevent the AJAX request
+                        }
+                        var fileName = fileInput.files[0].name;
+                        if (!fileName.endsWith('.zip') && !fileName.endsWith('.pdf')) {
+                            return; // Prevent the AJAX request
+                        }
+
+                        // Show modal only if a similarInputGroup checkbox is checked
+                        if (similarCheckboxChecked) {
+                            $("#Deidentifying").modal("show");
+                        }
+                    }
+                },
+                success: function (response) {
+                    let button = document.querySelector('.trialCls');
+                    if (response['trial_status'] === 'True') {
+                        button.setAttribute('id', 'userTrial');
+                        chart_id = document.getElementById('chartIdInput');
+                        chart_id.value = response['chart_id'];
+                    } else {
+                        button.setAttribute('id', 'acceptContinue');
+                    }
+                    if (response['success']) {
+                        ws.onclose = function (event) {
+                        };
+                        const successText = response['success'];
+                        const user = response['user'];
+                        const chartCost = response['chart_cost'];
+                        const pageCount = response['total_page_count'];
+                        const deidentifyingText = document.getElementById('deidentifyingText')
+                        const percentageText = document.getElementById('text')
+                        const payModalCost = document.getElementById('payModalCost')
+                        const payModalDate = document.getElementById('payModalDate')
+                        const payModalFrom = document.getElementById('from')
+                        const costConfirmation = document.getElementById('costConfirmation')
+                        const estimatedTime = document.getElementById('estimatedTime')
+                        const displayText = document.getElementById('displayText')
+                        const todayDate = getFormattedDate();
+                        deidentifyingText.innerText = `This chart contains ${successText} characters`;
+                        percentageText.innerText = `$ ${chartCost}`;
+                        payModalCost.innerText = `$ ${chartCost}`;
+                        payModalDate.innerText = `Due ${todayDate}`;
+                        payModalFrom.innerText = `${user}`;
+                        costConfirmation.innerText = 'Confirm Cost';
+                        estimatedTime.innerText = '';
+                        displayText.innerText = `The cost to audit a chart is $5 per 28000 characters.
+                             This is between ${successText - 300} and ${successText} words or about ${pageCount} pages.`;
+                        modalButtons.style.display = "block";
+                    }
+                    const displayErrorDiv = document.getElementById('errorDiv')
+                    const errorText = response['form-errors']['__all__'];
+                    if (errorText) {
+                        displayErrorDiv.innerHTML = '';
+                        errorText.forEach(function (error) {
+                            const errorDivCH = document.createElement('div');
+                            errorDivCH.className = 'alert alert-danger text-center';
+                            errorDivCH.textContent = error;
+                            displayErrorDiv.appendChild(errorDivCH);
+                            displayErrorDiv.style.display = 'block';
+                        });
+                    }
+                },
+            });
+        });
+
+    </script>
+
+    <script>
+        async function paymentFunction() {
+            const stripe = Stripe("pk_test_51OlqN5IhFQZEgnHhyFe2wF6AaF66Uy5vekgkhW305jE43clykwVDOt7OA2mE8qXttxJiw0O2xMMh48wfWAePA0qB00YYJEtiUD");
+            const items = [{id: "xl-tshirt"}];
+
+            const response = await fetch("/create-payment-intent/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({items}),
+            });
+            const {clientSecret, chartId} = await response.json();
+
+            const appearance = {
+                theme: 'stripe',
+            };
+
+            const protocol = window.location.protocol;
+            const domain = window.location.hostname;
+            const url = protocol + "//" + domain + "/" + "user-report/"
+            {#const url = protocol + "//" + domain + "/" + "chart-audit/" + "?obj=" + chartId + "/"#}
+            {#const chartIdQueryString = encodeURIComponent(JSON.stringify(chartId));#}
+
+            const elements = stripe.elements({appearance, clientSecret});
+            const paymentElementOptions = {
+                layout: "tabs",
+            };
+
+            $("#payModal").modal("show");
+            const paymentElement = elements.create("payment", paymentElementOptions);
+            paymentElement.mount("#payment-element");
+
+            const form = document.getElementById("payModal");
+            form.addEventListener("submit", handleSubmit);
+
+            async function handleSubmit(event) {
+                event.preventDefault();
+                setLoading(true);
+
+                const {error} = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: url,
+                        {#return_url: `http://127.0.0.1:8000/user-report/`,#}
+                    },
+                });
+
+                // Additional handling after payment confirmation
+                if (error.type === "card_error" || error.type === "validation_error") {
+                    showMessage(error.message);
+                } else {
+                    showMessage("An unexpected error occurred.");
+                }
+                setLoading(false);
+            }
+
+            // Fetches the payment intent status after payment submission
+            async function checkStatus() {
+                const clientSecret = new URLSearchParams(window.location.search).get(
+                    "payment_intent_client_secret"
+                );
+
+                if (!clientSecret) {
+                    return;
+                }
+
+                const {paymentIntent} = await stripe.retrievePaymentIntent(clientSecret);
+
+                switch (paymentIntent.status) {
+                    case "succeeded":
+                        showMessage("Payment succeeded!");
+                        break;
+                    case "processing":
+                        showMessage("Your payment is processing.");
+                        break;
+                    case "requires_payment_method":
+                        showMessage("Your payment was not successful, please try again.");
+                        break;
+                    default:
+                        showMessage("Something went wrong.");
+                        break;
+                }
+            }
+
+            // ------- UI helpers -------
+
+            function showMessage(messageText) {
+                const messageContainer = document.querySelector("#payment-message");
+
+                messageContainer.classList.remove("hidden");
+                messageContainer.textContent = messageText;
+
+                setTimeout(function () {
+                    messageContainer.classList.add("hidden");
+                    messageContainer.textContent = "";
+                }, 4000);
+            }
+
+            // Show a spinner on payment submission
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    // Disable the button and show a spinner
+                    document.querySelector("#submit").disabled = true;
+                    document.querySelector("#spinner").classList.remove("hidden");
+                    document.querySelector("#button-text").classList.add("hidden");
+                } else {
+                    document.querySelector("#submit").disabled = false;
+                    document.querySelector("#spinner").classList.add("hidden");
+                    document.querySelector("#button-text").classList.remove("hidden");
+                }
+            }
+        };
+    </script>
+
+    <script>
+        function trailFunction() {
+            let csrf_token = document.querySelector('.csrfToken');
+            const chartIdInput = document.getElementById('chartIdInput')
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'chart_user_input' %}',
+                data: {
+                    'csrfmiddlewaretoken': csrf_token.value,
+                    'chartIdInput': chartIdInput.value,
+                },
+                success: function (response) {
+                    if (response['success']) {
+                        url = {% url 'report' %};
+                        window.location.href = url;
+                    }
+                },
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener('click', function (event) {
+            if (event.target.matches('#userTrial, #acceptContinue')) {
+                if (event.target.id === 'acceptContinue') {
+                    paymentFunction();
+                } else {
+                    trailFunction()
+                }
+            }
+        });
+    </script>
+
+{% endblock %}

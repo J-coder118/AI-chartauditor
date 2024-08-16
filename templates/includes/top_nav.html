@@ -1,0 +1,75 @@
+{% load static %}
+
+
+    <nav class="navbar navbar-expand-lg navbar-light">
+            <div>
+                <a href="{% url 'index' %}">
+            <img src="{% static 'images/logoMain.svg' %}" alt="logo" class="mainLogo" >
+                    </a>
+         </div>
+          <div class="d-flex align-items-center">
+            <div class="switchLink d-flex d-lg-none mr-2">
+              <div>
+                <input type="checkbox" class="checkbox" id="checkbox" />
+                <label for="checkbox" class="checkbox-label">
+                  <i class="fas fa-moon"></i>
+                  <i class="fas fa-sun"></i>
+                  <span class="ball"></span>
+                </label>
+              </div>
+            </div>
+            <button
+              class="navbar-toggler p-1 border-0"
+              type="button"
+              data-toggle="collapse"
+              data-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          </div>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+              <!-- ml-auto shifts nav items to right -->
+              <li class="nav-item active">
+                <a class="nav-link" href="#"
+                  >Dashboard <span class="sr-only"></span
+                ></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" target="_blank" href="https://chartauditor.com/beta.html">What is Beta V1</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'report' %}">Reports</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'payment_plans' %}">Credits</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'update_profile' %}">Settings</a>
+              </li>
+              <li class="nav-item">
+                  {% if request.user.is_authenticated and request.user.is_profile %}
+                      <form method="post" action="{% url 'logout' %}">
+                      {% csrf_token %}
+                      <button type="submit" class="nav-link">Logout</button>
+                      </form>
+                  {% else %}
+                      <a class="nav-link" href="{% url 'custom_login' %}">Login</a>
+                  {% endif %}
+              </li>
+              <li class="switchLink d-none d-lg-flex">
+                <div>
+                  <input type="checkbox" class="checkbox" id="checkbox" />
+                  <label for="checkbox" class="checkbox-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="ball"></span>
+                  </label>
+                </div>
+              </li>
+            </ul>
+          </div>
+    </nav>

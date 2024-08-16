@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Index Page</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'images/MainLogo.svg' %}" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link rel="stylesheet" type="text/css" href="{% static 'css/allstyles.css' %}" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+      {% block extra_css %}{% endblock %}
+  </head>
+  <body>
+  <div id="wrapper">
+      <div class="chartCheckerMain fileLibraryMain">
+      {% include 'includes/top_nav.html' %}
+      {% block content %}{% endblock %}
+      </div>
+  </div>
+  
+    <script type="text/javascript " src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{% static 'js/system.js' %}"></script>
+    <script>
+      $(document).ready(function() {
+          $('.multipleSelect').select2();
+      });
+    </script>
+    {% block extra_js %} {% endblock %}
+  </body>
+</html>
+ 
+ 
+ 

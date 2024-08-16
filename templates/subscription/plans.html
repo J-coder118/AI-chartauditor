@@ -1,0 +1,80 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+
+      <div class="contHead">
+        <h3 class="h3">TRY FOR FREE</h3>
+        <h1>Choose a plan</h1>
+        <h3 class="h3">#1 RATED BEHAVIORAL HEALTH CHART AUDITOR</h3>
+      </div>
+      <!-- choose plan box  -->
+      <div class="choosePlanRow mb-2 mb-lg-5 pb-2 pb-lg-5">
+        <a href='#' class="choosePlanBox">
+            <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+          <div class="choosePlanHead">
+            <h2>FREE</h2>
+            <!-- <h4>$500.00</h4> -->
+          </div>
+          <div class="creditTextRow">
+            <h1 class="h1">1 Chart Audit
+               </h1>
+              <h5>
+                   Upto 175,000 characters (75 pages)
+              </h5>
+          </div>
+          <div class="planPriceRow">
+            <h1 class="h1 text-center">
+              $0.00
+            </h1>
+            <h5 class="text-center">
+              No credit card required. <br> no commitment. 
+            </h5>
+          </div>
+          <div class="buyNowBtnRow">
+          <button type="submit" id="submitButton"  class="buyNowBtn">Try Now</button>
+          </div>
+        </a>
+        <a href="{% url 'index' %}" class="choosePlanBox planActive">
+          <div class="choosePlanHead">
+            <h2>ADVANCED</h2>
+            <h4>$250.00</h4>
+          </div>
+          <div class="creditTextRow">
+            <h1 class="h1">$0.10 per page </h1>
+              <h5>
+                  cost is $5 per 28000 characters
+              </h5>
+          </div>
+          <div class="planPriceRow">
+            <h1 class="h1 text-center">
+              $10/chart
+            </h1>
+            <h5 class="text-center">
+              assuming 100 pages chart <br> crossing of 280,000 characters
+            </h5>
+          </div>
+          <div class="buyNowBtnRow">
+          <button type="submit"  class="buyNowBtn">Try Now</button>
+          </div>
+        </a>
+        <a href="javascript:void(0)" class="choosePlanBox">
+          <div class="choosePlanHead">
+            <h2>ENTERPRISE</h2>
+            <h4>$2,500.00</h4>
+          </div>
+          <div class="creditTextRow">
+            <h1 class="h1">Contact Us</h1>
+          </div>
+          <div class="planPriceRow">
+            <h5 class="text-center">
+              Contact us today for custom plans,and pricing for larger facilities and organizations.
+            </h5>
+          </div>
+          <div class="buyNowBtnRow">
+          <button type="button"  class="buyNowBtn">Contact Us</button>
+          </div>
+        </a>
+      </div>
+{% endblock %}
+
+

@@ -1,0 +1,96 @@
+{% extends 'partials/base.html' %}
+{% load socialaccount %}
+{% load static %}
+{% block content %}
+    
+      <div class="contHead">
+          {% if messages %}
+              <div class="messages">
+                {% for message in messages %}
+                  <p{% if message.tags %} class="{{ message.tags }} alert alert-danger"{% endif %}>{{ message }}</p>
+                {% endfor %}
+              </div>
+          {% endif %}
+        <h3 class="h3">CHART CHECKER</h3>
+        <h1>Login</h1>
+      </div>
+      <form method="post" action="{% url 'custom_login' %}">
+          {% csrf_token %}
+          {% if form.errors %}
+              <div class="alert alert-danger">
+                  {{ form.errors }}
+              </div>
+          {% endif %}
+        <div class="signUpRow">
+          <div class="signRowLeft">
+{#            <div class="googleLinkBox">#}
+{#              <a href="#" class="googleLink">#}
+{#                <img src="{% static 'images/googleImg.svg' %}" alt="" />#}
+{#              </a>#}
+{#              <a href="{% provider_login_url 'google' %}" class="googleLinkTwo">#}
+{#                Sign in with Google#}
+{#              </a>#}
+{#            </div>#}
+            <div class="new-user">New User? <a href="{% url 'signup' %}">Create an Account</a>.</div>
+            <div class="optionTextRow">
+              <h4>Or</h4>
+            </div>
+            <div class="SignFormRowOne">
+              <!-- form rows -->
+              <div class="col-md-12">
+                <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                      <input
+                      type="email"
+                      id="stateLicense"
+                      class="form-control"
+                      name="email"
+                      required
+                      />
+                    <label class="form-control-placeholder" for="email"
+                      >E-mail Address</label
+                    >
+                  </div>
+                </div>
+              </div>
+                <div class="row">
+                <div class="col-12">
+                  <div class="form-group">
+                      <input
+                      type="password"
+                      id="stateLicense"
+                      class="form-control"
+                      name="password"
+                      required
+                      />
+                    <label class="form-control-placeholder" for="password"
+                      >Password</label
+                    >
+                  </div>
+                </div>
+              </div>
+
+                <button type="submit" class="nextBtn">
+                  Login <i class="fas fa-arrow-right nextRightArrow"></i>
+                </button>
+                <p class="privacyPolicyText">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                  Vestibulum vel gravida metus. Integer varius sit amet lorem
+                  sit amet luctus. Phasellus quis enim in velit molestie
+                  suscipit. Phasellus facilisis lorem nulla.
+
+                  <a href="#">Privacy Policy</a>
+                </p>
+              </div>
+              <!-- form rows end -->
+            </div>
+          </div>
+          <!-- signRow left end  -->
+          <div class="signRowRight">
+            <img src="{% static 'images/signUpRight.svg' %}" alt="" />
+          </div>
+        </div>
+      </form>
+
+{% endblock %}

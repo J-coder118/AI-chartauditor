@@ -1,0 +1,98 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+    
+      <div class="contHead">
+        <h3 class="h3">Step 2</h3>
+        <h1>Complete Your Profile</h1>
+        <h3 class="h3">Enter Your Company Information</h3>
+      </div>
+      <form method="post" action="{% url 'profile' %}">
+      {% csrf_token %}
+          <input type="text" name="user_id" value="{{ user_id }}" hidden>
+        <div class="signUpRow">
+          <div class="signRowLeft">
+            <div class="SignFormRowOne">
+                <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <input
+                      type="text"
+                      id="FirstName"
+                      class="form-control"
+                      name="first_name"
+                      required
+                    />
+                    <label class="form-control-placeholder" for="FirstName"
+                      >First Name
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    {{ form.facility_name }}
+                    <label class="form-control-placeholder" for="facilityName"
+                      >Facility Name
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                      {{ form.state_licence }}
+                    <label class="form-control-placeholder" for="stateLicense"
+                      >State Licensed
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    {{ form.accreditation }}
+                    <label class="form-control-placeholder" for="Accreditations"
+                      >Accreditations</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    {{ form.accept_insurance }}
+                    <label class="form-control-placeholder" for="accInsurance"
+                      >Accept Insurance?
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group signup-multi-select">
+                    {{ form.facility_type }}
+                    <label class="form-control-placeholder" for="facType">Facility Type</label>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="nextBtn">
+                Complete Profile
+                <i class="fas fa-arrow-right nextRightArrow"></i>
+              </button>
+
+              <p class="privacyPolicyText">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Vestibulum vel gravida metus. Integer varius sit amet lorem sit
+                amet luctus. Phasellus quis enim in velit molestie suscipit.
+                Phasellus facilisis lorem nulla.
+
+                <a href="#">Privacy Policy</a>
+              </p>
+              <!-- form rows end -->
+            </div>
+          </div>
+          <!-- signRow left end  -->
+          <div class="signRowRight">
+            <img src="{% static 'images/signUpRight.svg' %}" alt="" />
+          </div>
+        </div>
+      </form>
+    
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'partials/base.html' %}
+{% load socialaccount %}
+{% load static %}
+{% block content %}
+<div class="update-profile">
+    <div class="contHead">
+    
+        {% for message in messages %}
+        <div class="alert alert-danger text-center w-50 mx-auto">
+            <a class="close" href="#" data-dismiss="alert">×</a>
+            {{ message }}
+        </div>
+        {% endfor %}
+    
+        {% if password_form.errors %}
+        <div class="alert alert-danger text-center w-50 mx-auto">
+            <a class="close" href="#" data-dismiss="alert">×</a>
+            {{ password_form.errors }}
+        </div>
+        {% endif %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger text-center w-50 mx-auto">
+            <a class="close" href="#" data-dismiss="alert">×</a>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+    
+        <h1>Update Your Profile</h1>
+        <h4>Updated Your Profile Information</h4>
+    </div>
+    <form method="post" action="{% url 'update_profile' %}" class="updatrprofile-form container-fluid">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="fname">Full Name</label>
+                    {{ form.first_name }}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="facilityName">Facility Name</label>
+                    {{ form.facility_name }}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="stateLicense">State Licensed</label>
+                    {{ form.state_licence }}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="accreditations">Accreditations</label>
+                    {{ form.accreditation }}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="accept_insurance">Accept Insurance?</label>
+                    {{ form.accept_insurance }}
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="facility_type">Facility Type</label>
+                    {{ form.facility_type }}
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="nextBtn">
+                    Save Profile <i class="fas fa-arrow-right nextRightArrow"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+    
+    
+    <div class="update-profile">
+    <div class="contHead">
+        <h1>Change Your Password</h1>
+        <h4>Change Your Password</h4>
+    </div>
+        
+    <form method="post" action="{% url 'change_password' %}"  class="updatrprofile-form container-fluid">
+        {% csrf_token %}
+    
+        <div class="row">
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="newPassword">New Password</label>
+                    <div class="position-relative">
+                        {{ password_form.new_password1 }}
+                        <span class="password-toggle-icon"><i class="fas fa-eye"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-group">
+                    <label class="form-label" for="password">Confirm Password</label>
+                    <div class="position-relative">
+                        {{ password_form.new_password2 }}
+                        <span class="password-toggle-icon"><i class="fas fa-eye"></i></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="nextBtn">
+                    Change Password <i class="fas fa-arrow-right nextRightArrow"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    const togglePasswordIcons = document.querySelectorAll(".password-toggle-icon i");
+    const passwordFields = document.querySelectorAll(".password-field");
+    togglePasswordIcons.forEach(function(togglePassword, index) {
+        togglePassword.addEventListener("click", function () {
+            if (passwordFields[index].type === "password") {
+                passwordFields[index].type = "text";
+                togglePassword.classList.remove("fa-eye");
+                togglePassword.classList.add("fa-eye-slash");
+            } else {
+                passwordFields[index].type = "password";
+                togglePassword.classList.remove("fa-eye-slash");
+                togglePassword.classList.add("fa-eye");
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+    
+      <div class="dashMain ">
+        <div class="dashRight">
+          <div class="dashRightHead">
+            <h3 class="h3">
+              <span>Previous Reports</span>
+            </h3>
+            <form action="" class="has-search">
+              <div class="form-group">
+                <span class="fa fa-search form-control-feedback"></span>
+                <input type="text" class="form-control" placeholder="Search" />
+              </div>
+            </form>
+          </div>
+          <!-- dash right table  -->
+          <div class="table-responsive">
+            <table class="table table-striped fileLabTable">
+              <thead>
+                <tr>
+                  <th scope="col">
+                    File Name
+                  </th>
+                  <th scope="col">User Created</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Average Score</th>
+                  <th scope="col">File</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for chart in charts %}
+                <tr>
+                  <th scope="row"><a href="#"> {{ chart.chart_name }} </a></th>
+                  <td>{{ chart.user.first_name }} {{ chart.user.last_name }}</td>
+                  <td>
+                    {{ chart.created_at|date:"m / d / y" }}, {{ chart.created_at|time:"g:i A" }} <br />
+                    <span class="themeBlue">
+                        {{ chart.created_at|timesince }}
+                    </span>
+                  </td>
+                  <td>
+                     {% if chart.score %}
+                      {{ chart.score }}
+                      {% else %}
+                      _
+                      {% endif %}
+                  </td>
+                  <td>
+                  {% if chart.chart_response %}
+                      <form method="get" action="{% url 'download_report' %}">
+                          <input name="objId" value="{{ chart.id }}" hidden>
+                      <button type="submit" name="btn" value="pdf" class="ftDownloadBtn">PDF</button>
+                      <button type="submit" name="btn" value="docx" class="ftDownloadBtn">DOCx</button>
+                      </form>
+                  {% else %}
+                      <div class="AIResponse">
+                      <h5>Response is queued</h5>
+                      <p>wait for few seconds</p>
+                      </div>
+                  {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <!-- dash right table end -->
+        </div>
+      </div>
+    
+{% endblock %}
